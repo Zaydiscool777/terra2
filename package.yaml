@@ -21,9 +21,8 @@ description:         project for terra.hackclub.com
 
 dependencies:
 - base
-- helm
-- linear
-- lens
+- apecs
+- h-raylib
 
 ghc-options:
 - -Wall
@@ -35,8 +34,6 @@ ghc-options:
 - -Wmissing-home-modules
 - -Wpartial-fields
 - -Wredundant-constraints
-
-- -Wno-unused-imports
 
 library:
   source-dirs: src
