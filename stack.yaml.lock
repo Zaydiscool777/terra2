@@ -3,7 +3,21 @@
 # For more information, please see the documentation at:
 #   https://docs.haskellstack.org/en/stable/topics/lock_files
 
-packages: []
+packages:
+- completed:
+    hackage: linear-1.23.3@sha256:ecfb8dbe34c7c5afbe6a3d34b8bc3d028f628e709e5e255542ab9e9d4b49fa9a,4085
+    pantry-tree:
+      sha256: 55d69efd3b4ceaed6e8c084e79559777a1690aba0ca1240e5767cab0c5de06eb
+      size: 2171
+  original:
+    hackage: linear-1.23.3
+- completed:
+    hackage: h-raylib-6.1.0.0@sha256:341c48bea1990d790b58d9a7e3ba0532d9d6a2a98160ebaf156a8856d506edc4,9951
+    pantry-tree:
+      sha256: 54831b450e5f96e46bb4baeb3dc7e50f56b3ff3e90ce70e88829bfa24289fa18
+      size: 38412
+  original:
+    hackage: h-raylib-6.1.0.0
 snapshots:
 - completed:
     sha256: f139fd3b951e8b16a316f4a5415e1cdbf1eba392409d1f253e7d5a0069a4b3fa

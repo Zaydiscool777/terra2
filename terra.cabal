@@ -33,9 +33,9 @@ library
       src
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
   build-depends:
-      apecs
-    , base
+      base
     , h-raylib
+    , linear
   default-language: Haskell2010
 
 executable terra-exe
@@ -50,7 +50,7 @@ executable terra-exe
       src
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      apecs
-    , base
+      base
     , h-raylib
+    , linear
   default-language: Haskell2010

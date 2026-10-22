@@ -21,7 +21,7 @@ description:         project for terra.hackclub.com
 
 dependencies:
 - base
-- apecs
+- linear
 - h-raylib
 
 ghc-options:
