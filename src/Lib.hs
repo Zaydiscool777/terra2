@@ -18,7 +18,43 @@ import Raylib.Util.Colors
 
 import Linear
 import Control.Monad
-import Data.Maybe (catMaybes)
+import Control.Applicative
+import Data.Maybe
+
+-- utils
+
+-- untilM :: Monad m => (a -> Bool) -> m a -> m a from: utility-ht
+untilM :: Monad m => (a -> Bool) -> m a -> m [a]
+untilM p m =
+  let go =
+        do
+          x <- m
+          if p x
+            then return []
+            else (x :) <$> go
+    in go
+
+tilClose :: IO () -> IO ()
+tilClose x = untilM id (x >> windowShouldClose) >> return ()
+
+getKeysPressed :: IO [KeyboardKey]
+getKeysPressed = untilM (== KeyNull) getKeyPressed
+
+-- io
+
+tick :: IO ()
+tick = do
+  beginDrawing
+  clearBackground rayWhite
+  beginMode2D (Camera2D (V2 0 0) (V2 0 0) 0 1)
+  drawtiles
+  endMode2D
+  endDrawing -- presents frame to user
+
+drawtiles :: IO ()
+drawtiles = mapM_ (flip drawRectangleRec black) (tilesr 100)
+
+-- pure
 
 tiles :: [[Integer]]
 tiles = [
@@ -32,5 +68,8 @@ tilesr :: Float -> [Rectangle]
 tilesr k = (\(a, b) -> Rectangle (a * k) (b * k) k k) <$> (m >>= catMaybes)
   where m = zipWith (\i r -> zipWith (\j x -> guard (x == 1) >> Just (i, j)) [0..] r) [0..] tiles
 
-drawtiles :: IO ()
-drawtiles = mapM_ (flip drawRectangleRec black) (tilesr 100)
+center :: Vector2 -> Int -> Int -> Camera2D
+center v c d = Camera2D ((/ 2) . fromIntegral <$> V2 c d) v 0 1
+
+move :: Vector2 -> [KeyboardKey] -> Int -> [Rectangle] -> Vector2
+move pos keys airtime hitboxes = undefined

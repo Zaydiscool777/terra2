@@ -6,16 +6,11 @@ import Raylib.Types.Core.Camera
 import Raylib.Util.Colors
 
 import Linear
+import Control.Monad
 import Lib
 
 main :: IO ()
 main = do
   window <- initWindow 1000 1000 "hello"
-  beginDrawing
-  clearBackground rayWhite
-  beginMode2D (Camera2D (V2 0 0) (V2 0 0) 0 1)
-  drawtiles
-  endMode2D
-  endDrawing -- presents frame to user
-  waitTime 4
+  tilClose tick
   closeWindow (Just window)
