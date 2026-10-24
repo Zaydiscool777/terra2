@@ -23,6 +23,8 @@ dependencies:
 - base
 - linear
 - h-raylib
+- mtl
+- lens
 
 ghc-options:
 - -Wall

@@ -43,6 +43,8 @@ packages:
 extra-deps:
 - linear-1.23.3
 - h-raylib-6.1.0.0
+- mtl-2.3.1
+- lens-5.3.6
 
 # Override default flag values for project packages and extra-deps
 # flags: {}
