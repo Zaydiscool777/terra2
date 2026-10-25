@@ -22,6 +22,7 @@ import Control.Monad
 import Control.Monad.State
 import Data.Maybe
 import Control.Lens
+import Data.Bool
 
 -- utils
 
@@ -62,7 +63,7 @@ data Model = Model {
 
 init' :: Model
 init' = Model {
-  player = pure 200,
+  player = pure 201,
   uvel = pure 0,
   tvel = pure 0
 }
@@ -107,7 +108,6 @@ view' m = do
   drawplayer (player m)
   endMode2D
   endDrawing -- presents frame to user
-  print m
   waitTime 0.1
 
 -- io
@@ -121,12 +121,14 @@ drawplayer v = drawCircleV v playerRadius red
 -- pure
 
 tiles :: [[Integer]]
-tiles = [
-  [1, 1, 1, 1, 1],
-  [1, 0, 0, 0, 1],
-  [1, 0, 0, 0, 1],
-  [1, 0, 0, 0, 1],
-  [1, 1, 1, 1, 1]]
+tiles = fmap (fmap (bool 0 1 . (== '1'))) [
+  "111100",
+  "100100",
+  "100111",
+  "110001",
+  "100001",
+  "100111",
+  "111100"]
 
 tilesr' :: Float -> [Rectangle]
 tilesr' k = (\(row, col) -> Rectangle (col * k) (row * k) k k) <$> (m >>= catMaybes)
@@ -144,11 +146,21 @@ center v c d = Camera2D ((/ 2) . fromIntegral <$> V2 c d) v 0 1
 move :: Model -> Model
 move m@Model {player = p, uvel = v, tvel = t} =
   m {player = p + t', tvel = t'}
-  where
-    t' = foldr (block . (p,)) ((t & _x %~ (* 0.7)) + v + V2 0 1) tilesr
+  where t' = foldr (block . (p,)) ((t & _x %~ (max 1e-3 . (* 0.7))) + v + V2 0 1) tilesr
 
 block :: (Vector2, Rectangle) -> Vector2 -> Vector2
-block (V2 px py, Rectangle rx ry rw _) t@(V2 _ ty) =
-  let pr = playerRadius in
-  if px + pr > rx && px - pr < rx + rw && py <= ry && py + ty >= ry
-  then t & _y .~ ry - py else t
+block (V2 px py, Rectangle rx ry rw rh) t@(V2 tx ty) =
+  (if px + pr > rx && px - pr < rx + rw -- this condition is duplicated
+  && py <= ry && py + ty >= ry
+  then _y .~ ry - py else id) $
+  (if px + pr > rx && px - pr < rx + rw
+  && py >= ry + rh && py + ty <= ry + rh
+  then _y .~ ry + rh - py else id) $
+  (if py + pr > ry && py - pr < ry + rh
+  && px <= rx && px + tx >= rx
+  then _x .~ rx - px else id) $
+  (if py + pr > ry && py - pr < ry + rh
+  && px >= rx + rw && px + tx <= rx + rw
+  then _x .~ rx + rw - px else id)
+  t
+  where pr = playerRadius
