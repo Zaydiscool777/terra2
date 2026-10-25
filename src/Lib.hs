@@ -57,14 +57,14 @@ getKeysDown = filterM isKeyDown (toEnum <$> keysint)
 data Model = Model {
   player :: Vector2,
   uvel :: Vector2,
-  gvel :: Float
+  tvel :: Vector2
 } deriving Show
 
 init' :: Model
 init' = Model {
   player = pure 200,
   uvel = pure 0,
-  gvel = 0
+  tvel = pure 0
 }
 
 tick :: StateT Model IO ()
@@ -116,7 +116,7 @@ drawtiles :: IO ()
 drawtiles = mapM_ (`drawRectangleRec` black) tilesr
 
 drawplayer :: Vector2 -> IO ()
-drawplayer v = drawCircleV v 10 red 
+drawplayer v = drawCircleV v playerRadius red
 
 -- pure
 
@@ -129,28 +129,26 @@ tiles = [
   [1, 1, 1, 1, 1]]
 
 tilesr' :: Float -> [Rectangle]
-tilesr' k = (\(a, b) -> Rectangle (a * k) (b * k) k k) <$> (m >>= catMaybes)
+tilesr' k = (\(row, col) -> Rectangle (col * k) (row * k) k k) <$> (m >>= catMaybes)
   where m = zipWith (\i r -> zipWith (\j x -> guard (x == 1) >> Just (i, j)) [0..] r) [0..] tiles
 
+playerRadius :: Float
+playerRadius = 10
+
 tilesr :: [Rectangle]
-tilesr = [Rectangle 100 100 400 125] -- tilesr' 100
+tilesr = tilesr' 100 -- [Rectangle 100 100 400 125]
 
 center :: Vector2 -> Int -> Int -> Camera2D
 center v c d = Camera2D ((/ 2) . fromIntegral <$> V2 c d) v 0 1
 
 move :: Model -> Model
-move m@Model {player = p, uvel = v, gvel = g} =
-  m {player = p', gvel = g'}
+move m@Model {player = p, uvel = v, tvel = t} =
+  m {player = p + t', tvel = t'}
   where
-    (p', g') = case foldr (block . (p,)) (Left (g + v^._y + 1)) tilesr of
-      Left x -> (p + v + V2 0 (g - v^._y), x)
-      Right x -> (x + v, 0)
+    t' = foldr (block . (p,)) ((t & _x %~ (* 0.7)) + v + V2 0 1) tilesr
 
-block :: (Vector2, Rectangle) -> Either Float Vector2 -> Either Float Vector2 -- foldable collision
-block _ x@(Right _) = x
-block (V2 px py, Rectangle rx ry rw _) (Left pg) =
-  if (compare px rx, compare px (rx + rw)) == (GT, LT)
-  then case (compare py ry, compare (py + pg) ry) of
-    (LT, LT) -> Left pg
-    _ -> Right (V2 px ry)
-  else Left pg
+block :: (Vector2, Rectangle) -> Vector2 -> Vector2
+block (V2 px py, Rectangle rx ry rw _) t@(V2 _ ty) =
+  let pr = playerRadius in
+  if px + pr > rx && px - pr < rx + rw && py <= ry && py + ty >= ry
+  then t & _y .~ ry - py else t
